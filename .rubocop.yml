@@ -1,0 +1,8 @@
+Documentation:
+  Enabled: false
+
+SignalException:
+  EnforcedStyle: only_raise
+
+Style/TrailingCommaInLiteral:
+  Enabled: false

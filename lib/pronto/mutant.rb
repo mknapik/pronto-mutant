@@ -3,6 +3,8 @@
 require 'pronto'
 require 'mutant'
 require 'pp'
+require 'parser'
+require_relative 'mutant/traverser'
 
 module Pronto
   class Mutant < Runner
@@ -11,23 +13,28 @@ module Pronto
     end
 
     def run
-      spec_path = repo_path + 'spec'
       source_paths = ruby_patches
                        .lazy
                        .map(&:new_file_full_path)
-                       .select { |path| not_test_path?(path, spec_path) }
+                       .reject(&method(:test_path?))
                        .map { |path| path.relative_path_from(repo_path) }
       require_options = source_paths.map { |path| path }
-      pp require_options
-      # options = %w[--require ./lib/pronto/mutant.rb --use rspec Fibonacci]
-      # pp ::Mutant::CLI.run(options)
+
+      traverser = Mutant::Traverser.new
+      classes = require_options.flat_map do |f|
+        sexp = Parser::CurrentRuby.parse(File.read(f))
+        traverser.classes(sexp)
+      end.to_a.uniq
+
+      options = %W[--include example/lib --require fibonacci --use rspec]
+      pp ::Mutant::CLI.run(options + classes)
       []
     end
 
     private
 
-    def not_test_path?(path, spec_path)
-      path.relative_path_from(spec_path).to_s.start_with?('..')
+    def test_path?(path)
+      path.to_s.end_with?('_spec.rb')
     end
   end
 end

@@ -17,7 +17,7 @@ module Pronto
                        .map(&:new_file_full_path)
                        .select { |path| not_test_path?(path, spec_path) }
                        .map { |path| path.relative_path_from(repo_path) }
-      require_options = source_paths.map { |path| }
+      require_options = source_paths.map { |path| path }
       pp require_options
       # options = %w[--require ./lib/pronto/mutant.rb --use rspec Fibonacci]
       # pp ::Mutant::CLI.run(options)

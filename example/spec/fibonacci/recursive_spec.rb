@@ -1,4 +1,4 @@
-require_relative '../../lib/fibonacci'
+require_relative '../../lib/fibonacci/recursive'
 require_relative '../support/fibonacci'
 
 RSpec.describe Fibonacci::Recursive do

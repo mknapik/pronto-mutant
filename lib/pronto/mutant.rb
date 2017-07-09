@@ -29,9 +29,20 @@ module Pronto
         traverser.classes(sexp)
       end.to_a.uniq
 
-      options = requires + includes + %w[--use rspec]
+      config = ::Mutant::Config::DEFAULT
+      reporter = ::Mutant::Reporter::Sequence.new($stdout)
 
-      ::Mutant::CLI.run(options + classes)
+      config = config
+                 .with(requires: requires)
+                 .with(includes: includes)
+                 .with(reporter: reporter)
+                 .with(matcher: classes.reduce(config.matcher) { |matcher, klass| matcher.add(:match_expressions, config.expression_parser.(klass)) })
+                 .with(integration: ::Mutant::Integration.setup(Kernel, 'rspec'))
+
+      require 'pry'; binding.pry;
+
+      ::Mutant::Runner.call(::Mutant::Env::Bootstrap.call(config))
+
       []
     end
 
@@ -42,11 +53,11 @@ module Pronto
     end
 
     def requires
-      @mutant_config.to_h.fetch('require').flat_map { |r| ['--require', r]}.freeze
+      @mutant_config.to_h.fetch('require').freeze
     end
 
     def includes
-      @mutant_config.to_h.fetch('include').flat_map { |i| ['--include', i] }.freeze
+      @mutant_config.to_h.fetch('include').freeze
     end
   end
 end

@@ -8,8 +8,8 @@ module Pronto
       DEFAULT_MESSAGE_FORMAT = '%{msg}'
 
       EMPTY = {
-        'require' => Set.new,
-        'include' => Set.new(['lib'])
+        'require' => Set.new.freeze,
+        'include' => Set.new(['lib']).freeze
       }.freeze
 
       def initialize(path = '.mutant.yml')
@@ -25,8 +25,8 @@ module Pronto
 
       def merge(hash)
         {
-          'require' => EMPTY['require'].union(hash.fetch('require', [])).to_a,
-          'include' => EMPTY['include'].union(hash.fetch('include', [])).to_a,
+          'require' => EMPTY['require'].union(hash.fetch('require', [])).to_a.freeze,
+          'include' => EMPTY['include'].union(hash.fetch('include', [])).to_a.freeze,
         }
       end
     end
